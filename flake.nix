@@ -34,5 +34,14 @@
       );
 
       overlays.default = import ./overlay;
+
+      devShells = perSystem (
+        { pkgs }:
+        {
+          default = pkgs.mkShell {
+            packages = [ pkgs.krunkit ];
+          };
+        }
+      );
     };
 }

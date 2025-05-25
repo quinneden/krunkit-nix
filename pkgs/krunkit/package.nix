@@ -46,14 +46,17 @@ stdenv.mkDerivation (finalAttrs: {
     "PREFIX=${placeholder "out"}"
   ];
 
-  postInstall = ''
+  dontStrip = true;
+
+  postFixup = ''
     install_name_tool -change \
       libkrun-efi.dylib \
       ${libkrun-efi}/lib/libkrun-efi.dylib \
       $out/bin/krunkit
 
-    cp ${finalAttrs.src}/krunkit.entitlements $TMPDIR/krunkit.entitlements
-    codesign --entitlements $TMPDIR/krunkit.entitlements --force -s - $out/bin/krunkit
+    codesign -f -s - \
+      --entitlements ${finalAttrs.src}/krunkit.entitlements \
+      $out/bin/krunkit
   '';
 
   meta = with lib; {
