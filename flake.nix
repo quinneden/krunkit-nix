@@ -38,5 +38,25 @@
           packages = [ pkgs.krunkit ];
         };
       };
+
+      apps.${system}.update = {
+        type = "app";
+        program = pkgs.lib.getExe (
+          pkgs.writeShellApplication {
+            name = "update";
+            runtimeInputs = with pkgs; [
+              jq
+              curl
+              nix-prefetch-github
+              gawk
+            ];
+            text = ''
+              # shellcheck disable=SC2034
+              export pkgName="$1"
+              ${pkgs.bash}/bin/bash ${./scripts/update.sh}
+            '';
+          }
+        );
+      };
     };
 }
