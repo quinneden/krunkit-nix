@@ -1,5 +1,5 @@
 {
-  description = "Libkrun-efi and Krunkit derivations for Darwin.";
+  description = "Libkrun-efi and Krunkit for aarch64-darwin.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -8,40 +8,35 @@
   outputs =
     { nixpkgs, self }:
     let
-      systems = [
-        "aarch64-darwin"
-        "x86_64-darwin"
-      ];
-
-      perSystem =
-        f:
-        nixpkgs.lib.genAttrs systems (
-          system:
-          f {
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ self.overlays.default ];
-            };
-          }
-        );
+      system = "aarch64-darwin";
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          self.overlays.default
+          self.overlays.virglrenderer
+        ];
+      };
     in
     {
-      packages = perSystem (
-        { pkgs }:
-        {
-          inherit (pkgs) krunkit libkrun-efi;
-        }
-      );
+      packages.${system} = {
+        inherit (pkgs) krunkit libkrun-efi virglrenderer;
+      };
 
-      overlays.default = import ./overlay;
-
-      devShells = perSystem (
-        { pkgs }:
-        {
-          default = pkgs.mkShell {
-            packages = [ pkgs.krunkit ];
+      overlays = {
+        default =
+          final: prev:
+          prev.lib.packagesFromDirectoryRecursive {
+            inherit (final) callPackage;
+            directory = ./pkgs;
           };
-        }
-      );
+
+        virglrenderer = import ./overlays/virglrenderer.nix;
+      };
+
+      devShells.${system} = {
+        default = pkgs.mkShell {
+          packages = [ pkgs.krunkit ];
+        };
+      };
     };
 }

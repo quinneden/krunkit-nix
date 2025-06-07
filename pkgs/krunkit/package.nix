@@ -49,13 +49,9 @@ stdenv.mkDerivation (finalAttrs: {
   dontStrip = true;
 
   postFixup = ''
-    install_name_tool -change \
-      libkrun-efi.dylib \
-      ${libkrun-efi}/lib/libkrun-efi.dylib \
+    install_name_tool -change libkrun-efi.dylib ${libkrun-efi}/lib/libkrun-efi.dylib \
       $out/bin/krunkit
-
-    codesign -f -s - \
-      --entitlements ${finalAttrs.src}/krunkit.entitlements \
+    codesign --force --sign - --entitlements ${finalAttrs.src}/krunkit.entitlements \
       $out/bin/krunkit
   '';
 
@@ -63,7 +59,6 @@ stdenv.mkDerivation (finalAttrs: {
     description = "CLI tool to start VMs with libkrun";
     homepage = "https://github.com/containers/krunkit";
     license = licenses.asl20;
-    maintainers = with maintainers; [ quinneden ];
     platforms = lib.platforms.darwin;
   };
 })

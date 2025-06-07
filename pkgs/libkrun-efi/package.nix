@@ -46,21 +46,20 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   makeFlags = [
-    "PREFIX=${placeholder "out"}"
     "EFI=1"
+    "PREFIX=${placeholder "out"}"
   ];
 
   postInstall = ''
     mkdir -p $dev/lib
-    mv $out/lib/pkgconfig $dev/lib/
-    mv $out/include $dev/
+    mv $out/lib/pkgconfig $dev/lib
+    mv $out/include $dev
   '';
 
   meta = with lib; {
     description = "Dynamic library providing Virtualization-based process isolation capabilities";
     homepage = "https://github.com/containers/libkrun";
     license = licenses.asl20;
-    maintainers = with maintainers; [ quinneden ];
     platforms = platforms.darwin;
   };
 })
